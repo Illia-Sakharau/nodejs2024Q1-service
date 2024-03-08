@@ -13,8 +13,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserId } from './entities/user.entity';
 import { Response } from 'express';
-import uuidValidateV4 from './utils/uuidValidateV4';
 import prepareUserForResponse from './utils/prepareUserForResponse';
+import uuidValidateV4 from './utils/uuidValidateV4';
 
 @Controller('user')
 export class UserController {

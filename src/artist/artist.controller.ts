@@ -14,10 +14,14 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistId } from './entities/artist.entity';
 import { Response } from 'express';
 import uuidValidateV4 from './utils/uuidValidateV4';
+import { AlbumService } from '../album/album.service';
 
 @Controller('artist')
 export class ArtistController {
-  constructor(private readonly artistService: ArtistService) {}
+  constructor(
+    private readonly artistService: ArtistService,
+    private readonly albumService: AlbumService,
+  ) {}
 
   @Post()
   create(@Body() createArtistDto: CreateArtistDto) {
@@ -99,6 +103,7 @@ export class ArtistController {
       });
       return;
     }
+    this.albumService.cleanArtistId(id);
     res.status(204);
   }
 }

@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class AlbumService {
   private albums: Record<AlbumId, Album> = {};
+  private favorites: Record<AlbumId, Album> = {};
 
   create(createAlbumDto: CreateAlbumDto) {
     const id = uuidv4();
@@ -37,6 +38,7 @@ export class AlbumService {
     const album = this.albums[id];
     if (!album) return undefined;
     delete this.albums[id];
+    delete this.favorites[id];
     return true;
   }
 
@@ -46,5 +48,23 @@ export class AlbumService {
         album.artistId = null;
       }
     });
+  }
+
+  getFavorites() {
+    return Object.values(this.favorites);
+  }
+
+  addToFavorites(id: AlbumId) {
+    const album = this.findOne(id);
+    if (!album) return undefined;
+    this.favorites[id] = album;
+    return true;
+  }
+
+  removeFromFavorites(id: AlbumId) {
+    const removingAlbum = this.favorites[id];
+    if (!removingAlbum) return undefined;
+    delete this.favorites[id];
+    return true;
   }
 }

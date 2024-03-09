@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class ArtistService {
   private artists: Record<ArtistId, Artist> = {};
+  private favorites: Record<ArtistId, Artist> = {};
 
   create(createArtistDto: CreateArtistDto) {
     const id = uuidv4();
@@ -37,6 +38,25 @@ export class ArtistService {
     const artist = this.artists[id];
     if (!artist) return undefined;
     delete this.artists[id];
+    delete this.favorites[id];
+    return true;
+  }
+
+  getFavorites() {
+    return Object.values(this.favorites);
+  }
+
+  addToFavorites(id: ArtistId) {
+    const artist = this.findOne(id);
+    if (!artist) return undefined;
+    this.favorites[id] = artist;
+    return true;
+  }
+
+  removeFromFavorites(id: ArtistId) {
+    const removingArtist = this.favorites[id];
+    if (!removingArtist) return undefined;
+    delete this.favorites[id];
     return true;
   }
 }

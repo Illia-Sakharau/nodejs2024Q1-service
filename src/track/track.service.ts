@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class TrackService {
   private tracks: Record<TrackId, Track> = {};
+  private favorites: Record<TrackId, Track> = {};
 
   create(createTrackDto: CreateTrackDto) {
     const id = uuidv4();
@@ -37,6 +38,7 @@ export class TrackService {
     const track = this.tracks[id];
     if (!track) return undefined;
     delete this.tracks[id];
+    delete this.favorites[id];
     return true;
   }
 
@@ -54,5 +56,23 @@ export class TrackService {
         track.albumId = null;
       }
     });
+  }
+
+  getFavorites() {
+    return Object.values(this.favorites);
+  }
+
+  addToFavorites(id: TrackId) {
+    const track = this.findOne(id);
+    if (!track) return undefined;
+    this.favorites[id] = track;
+    return true;
+  }
+
+  removeFromFavorites(id: TrackId) {
+    const removingTrack = this.favorites[id];
+    if (!removingTrack) return undefined;
+    delete this.favorites[id];
+    return true;
   }
 }

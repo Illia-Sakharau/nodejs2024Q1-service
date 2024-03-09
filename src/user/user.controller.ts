@@ -6,15 +6,17 @@ import {
   Param,
   Delete,
   Put,
-  Res,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserId } from './entities/user.entity';
-import { Response } from 'express';
 import prepareUserForResponse from './utils/prepareUserForResponse';
 import uuidValidateV4 from './utils/uuidValidateV4';
+import IncorrectIdError from './errors/incorrect-id.error copy';
+import UserNotFoundError from './errors/user-not-found.error';
+import InvalidUserPassword from './errors/invalid-user-password.error';
 
 @Controller('user')
 export class UserController {
@@ -34,82 +36,31 @@ export class UserController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: UserId, @Res({ passthrough: true }) res: Response) {
-    if (!uuidValidateV4(id)) {
-      res.status(400).send({
-        message: ['Not valid user ID'],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-      return;
-    }
+  findOne(@Param('id') id: UserId) {
+    if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const user = this.userService.findOne(id);
-    if (!user) {
-      res.status(404).send({
-        message: ['User not exist'],
-        error: 'Not Found',
-        statusCode: 404,
-      });
-      return;
-    }
+    if (!user) throw new UserNotFoundError();
     return prepareUserForResponse(user);
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: UserId,
-    @Res({ passthrough: true }) res: Response,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    if (!uuidValidateV4(id)) {
-      res.status(400).send({
-        message: ['Not valid user ID'],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-      return;
-    }
+  update(@Param('id') id: UserId, @Body() updateUserDto: UpdateUserDto) {
+    if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const user = this.userService.findOne(id);
-    if (!user) {
-      res.status(404).send({
-        message: ['User not exist'],
-        error: 'Not Found',
-        statusCode: 404,
-      });
-      return;
-    }
+    if (!user) throw new UserNotFoundError();
     if (user.password !== updateUserDto.oldPassword) {
-      res.status(403).send({
-        message: ['Current password is wrong'],
-        error: 'Forbidden',
-        statusCode: 403,
-      });
-      return;
+      throw new InvalidUserPassword();
     }
     const updatedUser = this.userService.update(id, updateUserDto);
     return prepareUserForResponse(updatedUser);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: UserId, @Res({ passthrough: true }) res: Response) {
-    if (!uuidValidateV4(id)) {
-      res.status(400).send({
-        message: ['Not valid user ID'],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-      return;
-    }
-
+  @HttpCode(204)
+  remove(@Param('id') id: UserId) {
+    if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const isDeleted = this.userService.remove(id);
-    if (!isDeleted) {
-      res.status(404).send({
-        message: ['User not exist'],
-        error: 'Not Found',
-        statusCode: 404,
-      });
-      return;
-    }
-    res.status(204);
+    if (!isDeleted) throw new UserNotFoundError();
+    return;
   }
 }

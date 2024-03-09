@@ -5,16 +5,17 @@ import {
   Body,
   Param,
   Delete,
-  Res,
   Put,
+  HttpCode,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistId } from './entities/artist.entity';
-import { Response } from 'express';
 import uuidValidateV4 from './utils/uuidValidateV4';
 import { AlbumService } from '../album/album.service';
+import IncorrectIdError from './errors/incorrect-id.error copy';
+import ArtistNotFoundError from './errors/artist-not-found.error';
 
 @Controller('artist')
 export class ArtistController {
@@ -34,76 +35,28 @@ export class ArtistController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: ArtistId,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    if (!uuidValidateV4(id)) {
-      res.status(400).send({
-        message: ['Not valid artist ID'],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-      return;
-    }
+  findOne(@Param('id') id: ArtistId) {
+    if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const artist = this.artistService.findOne(id);
-    if (!artist) {
-      res.status(404).send({
-        message: ['Artist not exist'],
-        error: 'Not Found',
-        statusCode: 404,
-      });
-      return;
-    }
+    if (!artist) throw new ArtistNotFoundError();
     return artist;
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: ArtistId,
-    @Res({ passthrough: true }) res: Response,
-    @Body() updateArtistDto: UpdateArtistDto,
-  ) {
-    if (!uuidValidateV4(id)) {
-      res.status(400).send({
-        message: ['Not valid artist ID'],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-      return;
-    }
+  update(@Param('id') id: ArtistId, @Body() updateArtistDto: UpdateArtistDto) {
+    if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const artist = this.artistService.update(id, updateArtistDto);
-    if (!artist) {
-      res.status(404).send({
-        message: ['Artist not exist'],
-        error: 'Not Found',
-        statusCode: 404,
-      });
-      return;
-    }
+    if (!artist) throw new ArtistNotFoundError();
     return artist;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: ArtistId, @Res({ passthrough: true }) res: Response) {
-    if (!uuidValidateV4(id)) {
-      res.status(400).send({
-        message: ['Not valid artist ID'],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-      return;
-    }
+  @HttpCode(204)
+  remove(@Param('id') id: ArtistId) {
+    if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const isDeleted = this.artistService.remove(id);
-    if (!isDeleted) {
-      res.status(404).send({
-        message: ['Artist not exist'],
-        error: 'Not Found',
-        statusCode: 404,
-      });
-      return;
-    }
+    if (!isDeleted) throw new ArtistNotFoundError();
     this.albumService.cleanArtistId(id);
-    res.status(204);
+    return;
   }
 }

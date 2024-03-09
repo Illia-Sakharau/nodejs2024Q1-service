@@ -16,12 +16,14 @@ import uuidValidateV4 from './utils/uuidValidateV4';
 import { AlbumService } from '../album/album.service';
 import IncorrectIdError from './errors/incorrect-id.error copy';
 import ArtistNotFoundError from './errors/artist-not-found.error';
+import { TrackService } from '../track/track.service';
 
 @Controller('artist')
 export class ArtistController {
   constructor(
     private readonly artistService: ArtistService,
     private readonly albumService: AlbumService,
+    private readonly trackService: TrackService,
   ) {}
 
   @Post()
@@ -57,6 +59,7 @@ export class ArtistController {
     const isDeleted = this.artistService.remove(id);
     if (!isDeleted) throw new ArtistNotFoundError();
     this.albumService.cleanArtistId(id);
+    this.trackService.cleanArtistId(id);
     return;
   }
 }

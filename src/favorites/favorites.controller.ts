@@ -1,15 +1,15 @@
 import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
-import uuidTrackValidate from '../track/utils/uuidValidateV4';
-import IncorrectTrackIdError from '../track/errors/incorrect-id.error copy';
+import uuidTrackValidate from '../track/utils/uuid-track-validate.util';
+import IncorrectTrackIdError from '../track/errors/incorrect-track-id.error copy';
 import TrackNotExistError from './errors/track-not-exist.error';
 import TrackNotFavoriteError from './errors/track-not-favorite.error';
-import uuidAlbumValidate from '../album/utils/uuidValidateV4';
-import IncorrectAlbumIdError from '../album/errors/incorrect-id.error copy';
+import uuidAlbumValidate from '../album/utils/uuid-album-validate.util';
+import IncorrectAlbumIdError from '../album/errors/incorrect-album-id.error';
 import AlbumNotExistError from './errors/album-not-exist.error';
 import AlbumNotFavoriteError from './errors/album-not-favorite.error';
-import uuidArtistValidate from '../artist/utils/uuidValidateV4';
-import IncorrectArtistIdError from '../artist/errors/incorrect-id.error copy';
+import uuidArtistValidate from '../artist/utils/uuid-artist-validate.util';
+import IncorrectArtistIdError from '../artist/errors/incorrect-artist-id.error';
 import ArtistNotExistError from './errors/artist-not-exist.error';
 import ArtistNotFavoriteError from './errors/artist-not-favorite.error';
 

@@ -12,9 +12,9 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserId } from './entities/user.entity';
-import prepareUserForResponse from './utils/prepareUserForResponse';
-import uuidValidateV4 from './utils/uuidValidateV4';
-import IncorrectIdError from './errors/incorrect-id.error copy';
+import prepareUserForResponse from './utils/prepare-user-for-response.util';
+import uuidValidateV4 from './utils/uuid-user-validate.util';
+import IncorrectIdError from './errors/incorrect-user-id.error copy';
 import UserNotFoundError from './errors/user-not-found.error';
 import InvalidUserPassword from './errors/invalid-user-password.error';
 

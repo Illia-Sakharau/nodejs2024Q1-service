@@ -12,9 +12,9 @@ import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistId } from './entities/artist.entity';
-import uuidValidateV4 from './utils/uuidValidateV4';
+import uuidValidateV4 from './utils/uuid-artist-validate.util';
 import { AlbumService } from '../album/album.service';
-import IncorrectIdError from './errors/incorrect-id.error copy';
+import IncorrectIdError from './errors/incorrect-artist-id.error';
 import ArtistNotFoundError from './errors/artist-not-found.error';
 import { TrackService } from '../track/track.service';
 

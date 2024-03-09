@@ -11,8 +11,8 @@ import {
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import uuidValidateV4 from './utils/uuidValidateV4';
-import IncorrectIdError from './errors/incorrect-id.error copy';
+import uuidValidateV4 from './utils/uuid-track-validate.util';
+import IncorrectIdError from './errors/incorrect-track-id.error copy';
 import TrackNotFoundError from './errors/track-not-found.error';
 
 @Controller('track')

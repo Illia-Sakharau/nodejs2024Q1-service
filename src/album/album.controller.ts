@@ -12,9 +12,9 @@ import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { AlbumId } from './entities/album.entity';
-import uuidValidateV4 from './utils/uuidValidateV4';
+import uuidValidateV4 from './utils/uuid-album-validate.util';
 import AlbumNotFoundError from './errors/album-not-found.error';
-import IncorrectIdError from './errors/incorrect-id.error copy';
+import IncorrectIdError from './errors/incorrect-album-id.error';
 import { TrackService } from '../track/track.service';
 
 @Controller('album')

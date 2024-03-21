@@ -5,14 +5,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.db
+    container_name: postgres
     restart: always
     ports:
-      - "5432:5432"
+      - ${DB_PORT}:${DB_PORT}
     networks:
       - app-network
+    volumes:
+      - db/data:/var/lib/postgresql/data
+      - db/logs:/var/log/postgresql
     environment:
-      POSTGRES_PASSWORD: example
-      POSTGRES_USER: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   adminer:
     image: adminer
@@ -24,6 +29,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
+    container_name: application
     volumes:
       - ./src:/src
     restart: always

@@ -12,8 +12,8 @@ services:
     networks:
       - app-network
     volumes:
-      - db/data:/var/lib/postgresql/data
-      - db/logs:/var/log/postgresql
+      - db_data:/var/lib/postgresql/data
+      - db_logs:/var/log/postgresql
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -39,6 +39,10 @@ services:
       - db
     networks:
       - app-network
+
+volumes:
+  db_data: null
+  db_logs: null
 
 networks:
   app-network:

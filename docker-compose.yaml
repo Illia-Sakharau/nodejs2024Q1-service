@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: admin
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    volumes:
+      - ./src:/src
+    restart: always
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

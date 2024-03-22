@@ -23,43 +23,42 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    const newUser = this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const newUser = await this.userService.create(createUserDto);
     return prepareUserForResponse(newUser);
   }
 
   @Get()
-  findAll() {
-    return this.userService
-      .findAll()
-      .map((user) => prepareUserForResponse(user));
+  async findAll() {
+    const allUsers = await this.userService.findAll();
+    return allUsers.map((user) => prepareUserForResponse(user));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: UserId) {
+  async findOne(@Param('id') id: UserId) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const user = this.userService.findOne(id);
+    const user = await this.userService.findOne(id);
     if (!user) throw new UserNotFoundError();
     return prepareUserForResponse(user);
   }
 
   @Put(':id')
-  update(@Param('id') id: UserId, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: UserId, @Body() updateUserDto: UpdateUserDto) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const user = this.userService.findOne(id);
+    const user = await this.userService.findOne(id);
     if (!user) throw new UserNotFoundError();
     if (user.password !== updateUserDto.oldPassword) {
       throw new InvalidUserPassword();
     }
-    const updatedUser = this.userService.update(id, updateUserDto);
+    const updatedUser = await this.userService.update(id, updateUserDto);
     return prepareUserForResponse(updatedUser);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: UserId) {
+  async remove(@Param('id') id: UserId) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const isDeleted = this.userService.remove(id);
+    const isDeleted = await this.userService.remove(id);
     if (!isDeleted) throw new UserNotFoundError();
     return;
   }

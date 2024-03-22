@@ -1,52 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { User, UserId } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  private users: Record<UserId, User> = {};
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
-  create(createUserDto: CreateUserDto) {
-    const id = uuidv4();
-    const dateNow = Date.now();
-    const newUser = {
-      id,
-      version: 1,
-      createdAt: dateNow,
-      updatedAt: dateNow,
-      ...createUserDto,
-    };
-    this.users[id] = newUser;
+  async create(createUserDto: CreateUserDto) {
+    const newUser = await this.userRepository.save(createUserDto);
     return newUser;
   }
 
-  findAll() {
-    return Object.values(this.users);
+  async findAll() {
+    return await this.userRepository.find();
   }
 
-  findOne(id: UserId) {
-    const user = this.users[id];
-    if (!user) return undefined;
+  async findOne(id: UserId) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
     return user;
   }
 
-  update(id: UserId, updateUserDto: UpdateUserDto) {
-    const user = this.users[id];
+  async update(id: UserId, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
     if (!user) return undefined;
-    const dateNow = Date.now();
+
     user.password = updateUserDto.newPassword;
-    user.updatedAt = dateNow;
     user.version++;
-
-    return user;
+    return await this.userRepository.save(user);
   }
 
-  remove(id: UserId) {
-    const user = this.users[id];
+  async remove(id: UserId) {
+    const user = await this.findOne(id);
     if (!user) return undefined;
-    delete this.users[id];
+    await this.userRepository.delete(id);
     return true;
   }
 }

@@ -13,7 +13,6 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistId } from './entities/artist.entity';
 import uuidValidateV4 from './utils/uuid-artist-validate.util';
-import { AlbumService } from '../album/album.service';
 import IncorrectIdError from './errors/incorrect-artist-id.error';
 import ArtistNotFoundError from './errors/artist-not-found.error';
 import { TrackService } from '../track/track.service';
@@ -22,7 +21,6 @@ import { TrackService } from '../track/track.service';
 export class ArtistController {
   constructor(
     private readonly artistService: ArtistService,
-    private readonly albumService: AlbumService,
     private readonly trackService: TrackService,
   ) {}
 
@@ -61,7 +59,6 @@ export class ArtistController {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const isDeleted = await this.artistService.remove(id);
     if (!isDeleted) throw new ArtistNotFoundError();
-    this.albumService.cleanArtistId(id);
     this.trackService.cleanArtistId(id);
     return;
   }

@@ -40,9 +40,9 @@ export class FavoritesController {
   }
 
   @Post('album/:id')
-  addAlbum(@Param('id') id: string) {
+  async addAlbum(@Param('id') id: string) {
     if (!uuidAlbumValidate(id)) throw new IncorrectAlbumIdError();
-    const hasAlbum = this.favoritesService.addAlbum(id);
+    const hasAlbum = await this.favoritesService.addAlbum(id);
     if (!hasAlbum) throw new AlbumNotExistError();
     return { message: 'Album added to favorites' };
   }

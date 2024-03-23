@@ -27,8 +27,8 @@ export class FavoritesService {
     return this.trackService.removeFromFavorites(id);
   }
 
-  addAlbum(id: string) {
-    return this.albumService.addToFavorites(id);
+  async addAlbum(id: string) {
+    return await this.albumService.addToFavorites(id);
   }
 
   deleteAlbum(id: string) {

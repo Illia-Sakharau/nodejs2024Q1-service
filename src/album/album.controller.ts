@@ -16,6 +16,7 @@ import uuidValidateV4 from './utils/uuid-album-validate.util';
 import AlbumNotFoundError from './errors/album-not-found.error';
 import IncorrectIdError from './errors/incorrect-album-id.error';
 import { TrackService } from '../track/track.service';
+import prepareAlbumForResponse from './utils/prepare-album-for-response.util';
 
 @Controller('album')
 export class AlbumController {
@@ -25,38 +26,45 @@ export class AlbumController {
   ) {}
 
   @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto) {
-    return this.albumService.create(createAlbumDto);
+  async create(@Body() createAlbumDto: CreateAlbumDto) {
+    const newAlbum = await this.albumService.create(createAlbumDto);
+    return prepareAlbumForResponse(newAlbum);
   }
 
   @Get()
-  findAll() {
-    return this.albumService.findAll();
+  async findAll() {
+    const albums = await this.albumService.findAll();
+    return albums.map((album) => prepareAlbumForResponse(album));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: AlbumId) {
+  async findOne(@Param('id') id: AlbumId) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const album = this.albumService.findOne(id);
+    const album = await this.albumService.findOne(id);
     if (!album) throw new AlbumNotFoundError();
-    return album;
+    return prepareAlbumForResponse(album);
   }
 
   @Put(':id')
-  update(@Param('id') id: AlbumId, @Body() updateAlbumDto: UpdateAlbumDto) {
+  async update(
+    @Param('id') id: AlbumId,
+    @Body() updateAlbumDto: UpdateAlbumDto,
+  ) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const album = this.albumService.update(id, updateAlbumDto);
+    const album = await this.albumService.update(id, updateAlbumDto);
     if (!album) throw new AlbumNotFoundError();
-    return album;
+    return prepareAlbumForResponse(album);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: AlbumId) {
+  async remove(@Param('id') id: AlbumId) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const isDeleted = this.albumService.remove(id);
+    const isDeleted = await this.albumService.remove(id);
     if (!isDeleted) throw new AlbumNotFoundError();
+
     this.trackService.cleanAlbumId(id);
+
     return;
   }
 }

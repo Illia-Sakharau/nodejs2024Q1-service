@@ -2,62 +2,87 @@ import { Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album, AlbumId } from './entities/album.entity';
-import { v4 as uuidv4 } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import prepareAlbumForResponse from './utils/prepare-album-for-response.util';
 
 @Injectable()
 export class AlbumService {
-  private albums: Record<AlbumId, Album> = {};
-  private favorites: Record<AlbumId, Album> = {};
+  private favorites: Record<
+    AlbumId,
+    Omit<Album, 'artist'> & { artistId: string | null }
+  > = {};
 
-  create(createAlbumDto: CreateAlbumDto) {
-    const id = uuidv4();
-    const newAlbum = {
-      id,
-      ...createAlbumDto,
-    };
-    this.albums[id] = newAlbum;
-    return newAlbum;
+  constructor(
+    @InjectRepository(Album)
+    private readonly albumRepository: Repository<Album>,
+  ) {}
+
+  async create(createAlbumDto: CreateAlbumDto) {
+    const { artistId, ...otherInfo } = createAlbumDto;
+    return await this.albumRepository.save({
+      ...otherInfo,
+      artist: {
+        id: artistId,
+      },
+    });
   }
 
-  findAll() {
-    return Object.values(this.albums);
+  async findAll() {
+    return await this.albumRepository.find();
   }
 
-  findOne(id: AlbumId) {
-    return this.albums[id];
-  }
-
-  update(id: AlbumId, updateAlbumDto: UpdateAlbumDto) {
-    const album = this.albums[id];
-    if (!album) return undefined;
-    this.albums[id] = Object.assign(album, updateAlbumDto);
+  async findOne(id: AlbumId) {
+    const album = await this.albumRepository.findOne({
+      where: { id },
+      relations: {
+        artist: true,
+      },
+    });
     return album;
   }
 
-  remove(id: AlbumId) {
-    const album = this.albums[id];
+  async update(id: AlbumId, updateAlbumDto: UpdateAlbumDto) {
+    const { name, year, artistId } = updateAlbumDto;
+    const album = await this.findOne(id);
     if (!album) return undefined;
-    delete this.albums[id];
-    delete this.favorites[id];
-    return true;
+
+    if (typeof name === 'string') {
+      album.name = name;
+    }
+    if (typeof year === 'number') {
+      album.year = year;
+    }
+    if (typeof artistId === 'string') {
+      album.artist = {
+        id: artistId,
+        name: '',
+        grammy: false,
+      };
+    } else if (Object.is(null, artistId)) {
+      album.artist = null;
+    }
+    return await this.albumRepository.save(album);
   }
 
-  cleanArtistId(artistId: string) {
-    Object.values(this.albums).map((album) => {
-      if (album.artistId === artistId) {
-        album.artistId = null;
-      }
-    });
+  async remove(id: AlbumId) {
+    const album = await this.findOne(id);
+    if (!album) return undefined;
+    await this.albumRepository.remove(album);
+
+    delete this.favorites[id]; // remove after implement Favorites
+
+    return true;
   }
 
   getFavorites() {
     return Object.values(this.favorites);
   }
 
-  addToFavorites(id: AlbumId) {
-    const album = this.findOne(id);
+  async addToFavorites(id: AlbumId) {
+    const album = await this.findOne(id);
     if (!album) return undefined;
-    this.favorites[id] = album;
+    this.favorites[id] = prepareAlbumForResponse(album);
     return true;
   }
 

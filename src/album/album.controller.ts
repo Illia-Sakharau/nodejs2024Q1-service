@@ -15,15 +15,11 @@ import { AlbumId } from './entities/album.entity';
 import uuidValidateV4 from './utils/uuid-album-validate.util';
 import AlbumNotFoundError from './errors/album-not-found.error';
 import IncorrectIdError from './errors/incorrect-album-id.error';
-import { TrackService } from '../track/track.service';
 import prepareAlbumForResponse from './utils/prepare-album-for-response.util';
 
 @Controller('album')
 export class AlbumController {
-  constructor(
-    private readonly albumService: AlbumService,
-    private readonly trackService: TrackService,
-  ) {}
+  constructor(private readonly albumService: AlbumService) {}
 
   @Post()
   async create(@Body() createAlbumDto: CreateAlbumDto) {
@@ -62,9 +58,6 @@ export class AlbumController {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const isDeleted = await this.albumService.remove(id);
     if (!isDeleted) throw new AlbumNotFoundError();
-
-    this.trackService.cleanAlbumId(id);
-
     return;
   }
 }

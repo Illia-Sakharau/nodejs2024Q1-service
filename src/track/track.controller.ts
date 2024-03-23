@@ -14,42 +14,48 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import uuidValidateV4 from './utils/uuid-track-validate.util';
 import IncorrectIdError from './errors/incorrect-track-id.error copy';
 import TrackNotFoundError from './errors/track-not-found.error';
+import prepareTrackForResponse from './utils/prepare-track-for-response.util';
 
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Post()
-  create(@Body() createTrackDto: CreateTrackDto) {
-    return this.trackService.create(createTrackDto);
+  async create(@Body() createTrackDto: CreateTrackDto) {
+    const newTrack = await this.trackService.create(createTrackDto);
+    return prepareTrackForResponse(newTrack);
   }
 
   @Get()
-  findAll() {
-    return this.trackService.findAll();
+  async findAll() {
+    const allTracks = await this.trackService.findAll();
+    return allTracks.map((track) => prepareTrackForResponse(track));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const track = this.trackService.findOne(id);
+    const track = await this.trackService.findOne(id);
     if (!track) throw new TrackNotFoundError();
-    return track;
+    return prepareTrackForResponse(track);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateTrackDto: UpdateTrackDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateTrackDto: UpdateTrackDto,
+  ) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const track = this.trackService.update(id, updateTrackDto);
+    const track = await this.trackService.update(id, updateTrackDto);
     if (!track) throw new TrackNotFoundError();
-    return track;
+    return prepareTrackForResponse(track);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const isDeleted = this.trackService.remove(id);
+    const isDeleted = await this.trackService.remove(id);
     if (!isDeleted) throw new TrackNotFoundError();
     return;
   }

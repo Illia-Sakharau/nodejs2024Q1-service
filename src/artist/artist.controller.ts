@@ -15,14 +15,10 @@ import { ArtistId } from './entities/artist.entity';
 import uuidValidateV4 from './utils/uuid-artist-validate.util';
 import IncorrectIdError from './errors/incorrect-artist-id.error';
 import ArtistNotFoundError from './errors/artist-not-found.error';
-import { TrackService } from '../track/track.service';
 
 @Controller('artist')
 export class ArtistController {
-  constructor(
-    private readonly artistService: ArtistService,
-    private readonly trackService: TrackService,
-  ) {}
+  constructor(private readonly artistService: ArtistService) {}
 
   @Post()
   async create(@Body() createArtistDto: CreateArtistDto) {
@@ -59,7 +55,6 @@ export class ArtistController {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const isDeleted = await this.artistService.remove(id);
     if (!isDeleted) throw new ArtistNotFoundError();
-    this.trackService.cleanArtistId(id);
     return;
   }
 }

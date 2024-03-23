@@ -19,8 +19,8 @@ export class FavoritesService {
     };
   }
 
-  addTrack(id: string) {
-    return this.trackService.addToFavorites(id);
+  async addTrack(id: string) {
+    return await this.trackService.addToFavorites(id);
   }
 
   deleteTrack(id: string) {

@@ -23,9 +23,9 @@ export class FavoritesController {
   }
 
   @Post('track/:id')
-  addTrack(@Param('id') id: string) {
+  async addTrack(@Param('id') id: string) {
     if (!uuidTrackValidate(id)) throw new IncorrectTrackIdError();
-    const hasTrack = this.favoritesService.addTrack(id);
+    const hasTrack = await this.favoritesService.addTrack(id);
     if (!hasTrack) throw new TrackNotExistError();
     return { message: 'Track added to favorites' };
   }

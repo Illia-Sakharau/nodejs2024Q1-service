@@ -11,6 +11,7 @@ import { config } from 'dotenv';
 import { User } from './user/entities/user.entity';
 import { Artist } from './artist/entities/artist.entity';
 import { Album } from './album/entities/album.entity';
+import { Track } from './track/entities/track.entity';
 config();
 
 @Module({
@@ -28,7 +29,7 @@ config();
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       synchronize: true,
-      entities: [User, Artist, Album],
+      entities: [User, Artist, Album, Track],
       autoLoadEntities: true,
     }),
   ],

@@ -27,36 +27,39 @@ export class ArtistController {
   ) {}
 
   @Post()
-  create(@Body() createArtistDto: CreateArtistDto) {
-    return this.artistService.create(createArtistDto);
+  async create(@Body() createArtistDto: CreateArtistDto) {
+    return await this.artistService.create(createArtistDto);
   }
 
   @Get()
-  findAll() {
-    return this.artistService.findAll();
+  async findAll() {
+    return await this.artistService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: ArtistId) {
+  async findOne(@Param('id') id: ArtistId) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const artist = this.artistService.findOne(id);
+    const artist = await this.artistService.findOne(id);
     if (!artist) throw new ArtistNotFoundError();
     return artist;
   }
 
   @Put(':id')
-  update(@Param('id') id: ArtistId, @Body() updateArtistDto: UpdateArtistDto) {
+  async update(
+    @Param('id') id: ArtistId,
+    @Body() updateArtistDto: UpdateArtistDto,
+  ) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const artist = this.artistService.update(id, updateArtistDto);
+    const artist = await this.artistService.update(id, updateArtistDto);
     if (!artist) throw new ArtistNotFoundError();
     return artist;
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: ArtistId) {
+  async remove(@Param('id') id: ArtistId) {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
-    const isDeleted = this.artistService.remove(id);
+    const isDeleted = await this.artistService.remove(id);
     if (!isDeleted) throw new ArtistNotFoundError();
     this.albumService.cleanArtistId(id);
     this.trackService.cleanArtistId(id);

@@ -11,7 +11,7 @@ export class FavoritesService {
     private readonly trackService: TrackService,
   ) {}
 
-  getAll() {
+  async getAll() {
     return {
       artists: this.artistService.getFavorites(),
       albums: this.albumService.getFavorites(),
@@ -35,8 +35,8 @@ export class FavoritesService {
     return this.albumService.removeFromFavorites(id);
   }
 
-  addArtist(id: string) {
-    return this.artistService.addToFavorites(id);
+  async addArtist(id: string) {
+    return await this.artistService.addToFavorites(id);
   }
 
   deleteArtist(id: string) {

@@ -57,9 +57,9 @@ export class FavoritesController {
   }
 
   @Post('artist/:id')
-  addArtist(@Param('id') id: string) {
+  async addArtist(@Param('id') id: string) {
     if (!uuidArtistValidate(id)) throw new IncorrectArtistIdError();
-    const hasArtist = this.favoritesService.addArtist(id);
+    const hasArtist = await this.favoritesService.addArtist(id);
     if (!hasArtist) throw new ArtistNotExistError();
     return { message: 'Artist added to favorites' };
   }

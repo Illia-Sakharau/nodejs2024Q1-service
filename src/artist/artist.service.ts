@@ -4,11 +4,10 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist, ArtistId } from './entities/artist.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import prepareArtistForResponse from './utils/prepare-artist-for-response.util';
 
 @Injectable()
 export class ArtistService {
-  private favorites: Record<ArtistId, Artist> = {};
-
   constructor(
     @InjectRepository(Artist)
     private readonly artistRepository: Repository<Artist>,
@@ -45,27 +44,38 @@ export class ArtistService {
     const artist = await this.findOne(id);
     if (!artist) return undefined;
     await this.artistRepository.remove(artist);
-
-    delete this.favorites[id]; // remove after implement Favorites
-
     return true;
   }
 
-  getFavorites() {
-    return Object.values(this.favorites);
+  async getFavorites() {
+    const favorites = await this.artistRepository.find({
+      where: {
+        isFavorite: true,
+      },
+    });
+    return favorites.map((artist) => prepareArtistForResponse(artist));
   }
 
   async addToFavorites(id: ArtistId) {
     const artist = await this.findOne(id);
     if (!artist) return undefined;
-    this.favorites[id] = artist;
+    await this.artistRepository.update(id, {
+      isFavorite: true,
+    });
     return true;
   }
 
-  removeFromFavorites(id: ArtistId) {
-    const removingArtist = this.favorites[id];
+  async removeFromFavorites(id: ArtistId) {
+    const removingArtist = await this.artistRepository.findOne({
+      where: {
+        id,
+        isFavorite: true,
+      },
+    });
     if (!removingArtist) return undefined;
-    delete this.favorites[id];
+    await this.artistRepository.update(id, {
+      isFavorite: false,
+    });
     return true;
   }
 }

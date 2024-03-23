@@ -12,10 +12,13 @@ export class FavoritesService {
   ) {}
 
   async getAll() {
+    const artists = await this.artistService.getFavorites();
+    const albums = await this.albumService.getFavorites();
+    const tracks = await this.trackService.getFavorites();
     return {
-      artists: this.artistService.getFavorites(),
-      albums: this.albumService.getFavorites(),
-      tracks: this.trackService.getFavorites(),
+      artists,
+      albums,
+      tracks,
     };
   }
 
@@ -23,23 +26,23 @@ export class FavoritesService {
     return await this.trackService.addToFavorites(id);
   }
 
-  deleteTrack(id: string) {
-    return this.trackService.removeFromFavorites(id);
+  async deleteTrack(id: string) {
+    return await this.trackService.removeFromFavorites(id);
   }
 
   async addAlbum(id: string) {
     return await this.albumService.addToFavorites(id);
   }
 
-  deleteAlbum(id: string) {
-    return this.albumService.removeFromFavorites(id);
+  async deleteAlbum(id: string) {
+    return await this.albumService.removeFromFavorites(id);
   }
 
   async addArtist(id: string) {
     return await this.artistService.addToFavorites(id);
   }
 
-  deleteArtist(id: string) {
-    return this.artistService.removeFromFavorites(id);
+  async deleteArtist(id: string) {
+    return await this.artistService.removeFromFavorites(id);
   }
 }

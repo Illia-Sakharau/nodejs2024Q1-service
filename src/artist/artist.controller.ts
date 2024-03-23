@@ -15,6 +15,7 @@ import { ArtistId } from './entities/artist.entity';
 import uuidValidateV4 from './utils/uuid-artist-validate.util';
 import IncorrectIdError from './errors/incorrect-artist-id.error';
 import ArtistNotFoundError from './errors/artist-not-found.error';
+import prepareArtistForResponse from './utils/prepare-artist-for-response.util';
 
 @Controller('artist')
 export class ArtistController {
@@ -22,12 +23,14 @@ export class ArtistController {
 
   @Post()
   async create(@Body() createArtistDto: CreateArtistDto) {
-    return await this.artistService.create(createArtistDto);
+    const newArtist = await this.artistService.create(createArtistDto);
+    return prepareArtistForResponse(newArtist);
   }
 
   @Get()
   async findAll() {
-    return await this.artistService.findAll();
+    const artists = await this.artistService.findAll();
+    return artists.map((artist) => prepareArtistForResponse(artist));
   }
 
   @Get(':id')
@@ -35,7 +38,7 @@ export class ArtistController {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const artist = await this.artistService.findOne(id);
     if (!artist) throw new ArtistNotFoundError();
-    return artist;
+    return prepareArtistForResponse(artist);
   }
 
   @Put(':id')
@@ -46,7 +49,7 @@ export class ArtistController {
     if (!uuidValidateV4(id)) throw new IncorrectIdError();
     const artist = await this.artistService.update(id, updateArtistDto);
     if (!artist) throw new ArtistNotFoundError();
-    return artist;
+    return prepareArtistForResponse(artist);
   }
 
   @Delete(':id')

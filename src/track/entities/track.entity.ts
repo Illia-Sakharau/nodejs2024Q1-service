@@ -34,4 +34,9 @@ export class Track {
 
   @Column()
   duration: number; // integer number
+
+  @Column({
+    default: false,
+  })
+  isFavorite?: boolean;
 }

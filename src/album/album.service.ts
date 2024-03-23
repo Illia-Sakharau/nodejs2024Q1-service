@@ -8,11 +8,6 @@ import prepareAlbumForResponse from './utils/prepare-album-for-response.util';
 
 @Injectable()
 export class AlbumService {
-  private favorites: Record<
-    AlbumId,
-    Omit<Album, 'artist'> & { artistId: string | null }
-  > = {};
-
   constructor(
     @InjectRepository(Album)
     private readonly albumRepository: Repository<Album>,
@@ -66,27 +61,39 @@ export class AlbumService {
     const album = await this.findOne(id);
     if (!album) return undefined;
     await this.albumRepository.remove(album);
-
-    delete this.favorites[id]; // remove after implement Favorites
-
     return true;
   }
 
-  getFavorites() {
-    return Object.values(this.favorites);
+  async getFavorites() {
+    const favorites = await this.albumRepository.find({
+      where: {
+        isFavorite: true,
+      },
+      relations: ['artist'],
+    });
+    return favorites.map((album) => prepareAlbumForResponse(album));
   }
 
   async addToFavorites(id: AlbumId) {
     const album = await this.findOne(id);
     if (!album) return undefined;
-    this.favorites[id] = prepareAlbumForResponse(album);
+    await this.albumRepository.update(id, {
+      isFavorite: true,
+    });
     return true;
   }
 
-  removeFromFavorites(id: AlbumId) {
-    const removingAlbum = this.favorites[id];
+  async removeFromFavorites(id: AlbumId) {
+    const removingAlbum = await this.albumRepository.findOne({
+      where: {
+        id,
+        isFavorite: true,
+      },
+    });
     if (!removingAlbum) return undefined;
-    delete this.favorites[id];
+    await this.albumRepository.update(id, {
+      isFavorite: false,
+    });
     return true;
   }
 }

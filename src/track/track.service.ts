@@ -8,14 +8,6 @@ import prepareTrackForResponse from './utils/prepare-track-for-response.util';
 
 @Injectable()
 export class TrackService {
-  private favorites: Record<
-    TrackId,
-    Omit<Track, 'album' | 'artist'> & {
-      albumId: string | null;
-      artistId: string | null;
-    }
-  > = {};
-
   constructor(
     @InjectRepository(Track)
     private readonly trackRepository: Repository<Track>,
@@ -69,27 +61,39 @@ export class TrackService {
     const track = await this.findOne(id);
     if (!track) return undefined;
     await this.trackRepository.remove(track);
-
-    delete this.favorites[id]; // remove after implement Favorites
-
     return true;
   }
 
-  getFavorites() {
-    return Object.values(this.favorites);
+  async getFavorites() {
+    const favorites = await this.trackRepository.find({
+      where: {
+        isFavorite: true,
+      },
+      relations: ['artist', 'album'],
+    });
+    return favorites.map((track) => prepareTrackForResponse(track));
   }
 
   async addToFavorites(id: TrackId) {
     const track = await this.findOne(id);
     if (!track) return undefined;
-    this.favorites[id] = prepareTrackForResponse(track);
+    await this.trackRepository.update(id, {
+      isFavorite: true,
+    });
     return true;
   }
 
-  removeFromFavorites(id: TrackId) {
-    const removingTrack = this.favorites[id];
+  async removeFromFavorites(id: TrackId) {
+    const removingTrack = await this.trackRepository.findOne({
+      where: {
+        id,
+        isFavorite: true,
+      },
+    });
     if (!removingTrack) return undefined;
-    delete this.favorites[id];
+    await this.trackRepository.update(id, {
+      isFavorite: false,
+    });
     return true;
   }
 }

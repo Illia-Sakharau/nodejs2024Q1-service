@@ -26,4 +26,9 @@ export class Album {
   })
   @JoinColumn({ name: 'artistId' })
   artist: Artist | null; // refers to Artist
+
+  @Column({
+    default: false,
+  })
+  isFavorite?: boolean;
 }

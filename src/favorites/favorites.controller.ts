@@ -18,8 +18,8 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  findAll() {
-    return this.favoritesService.getAll();
+  async findAll() {
+    return await this.favoritesService.getAll();
   }
 
   @Post('track/:id')
@@ -32,9 +32,9 @@ export class FavoritesController {
 
   @Delete('track/:id')
   @HttpCode(204)
-  removeTrack(@Param('id') id: string) {
+  async removeTrack(@Param('id') id: string) {
     if (!uuidTrackValidate(id)) throw new IncorrectTrackIdError();
-    const isDeleted = this.favoritesService.deleteTrack(id);
+    const isDeleted = await this.favoritesService.deleteTrack(id);
     if (!isDeleted) throw new TrackNotFavoriteError();
     return;
   }
@@ -49,9 +49,9 @@ export class FavoritesController {
 
   @Delete('album/:id')
   @HttpCode(204)
-  removeAlbum(@Param('id') id: string) {
+  async removeAlbum(@Param('id') id: string) {
     if (!uuidAlbumValidate(id)) throw new IncorrectAlbumIdError();
-    const isDeleted = this.favoritesService.deleteAlbum(id);
+    const isDeleted = await this.favoritesService.deleteAlbum(id);
     if (!isDeleted) throw new AlbumNotFavoriteError();
     return;
   }
@@ -66,9 +66,9 @@ export class FavoritesController {
 
   @Delete('artist/:id')
   @HttpCode(204)
-  removeArtist(@Param('id') id: string) {
+  async removeArtist(@Param('id') id: string) {
     if (!uuidArtistValidate(id)) throw new IncorrectArtistIdError();
-    const isDeleted = this.favoritesService.deleteArtist(id);
+    const isDeleted = await this.favoritesService.deleteArtist(id);
     if (!isDeleted) throw new ArtistNotFavoriteError();
     return;
   }

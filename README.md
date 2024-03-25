@@ -46,3 +46,13 @@ To run only one of all test suites
 ```
 npm run test -- <path to suite>
 ```
+
+
+
+Migration
+
+install type orm cli
+https://typeorm.io/using-cli#installing-cli
+
+npm run migration:generate 
+npm run migration:run  

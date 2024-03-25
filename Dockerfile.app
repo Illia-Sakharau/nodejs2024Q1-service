@@ -6,6 +6,6 @@ WORKDIR /
 
 EXPOSE ${PORT}
 
-RUN npm install
+RUN npm install && npm cache clean --force  
 
 CMD [ "npm", "run", "start:dev" ]

@@ -7,12 +7,7 @@ import { AlbumModule } from './album/album.module';
 import { TrackModule } from './track/track.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { config } from 'dotenv';
-import { User } from './user/entities/user.entity';
-import { Artist } from './artist/entities/artist.entity';
-import { Album } from './album/entities/album.entity';
-import { Track } from './track/entities/track.entity';
-config();
+import { typeormConfig } from './typeorm.config';
 
 @Module({
   imports: [
@@ -22,15 +17,8 @@ config();
     TrackModule,
     FavoritesModule,
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
-      synchronize: true,
-      entities: [User, Artist, Album, Track],
-      autoLoadEntities: true,
+      ...typeormConfig,
+      host: 'db',
     }),
   ],
   controllers: [AppController],

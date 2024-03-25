@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    container_name: postgres
+    restart: always
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    networks:
+      - app-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - db_logs:/var/log/postgresql
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: application
+    volumes:
+      - ./src:/src
+    restart: always
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+volumes:
+  db_data: null
+  db_logs: null
+
+networks:
+  app-network:
+    driver: bridge
